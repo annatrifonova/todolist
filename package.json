@@ -18,6 +18,16 @@
   },
   "homepage": "https://github.com/annatrifonova/todolist#readme",
   "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
     "parcel": "^1.12.4"
+  },
+  "dependencies": {
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "redux-logger": "^3.0.6"
   }
 }
