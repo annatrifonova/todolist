@@ -3,10 +3,11 @@ import { render } from 'react-dom'
 import { Provider, connect } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
 import { createLogger } from 'redux-logger'
+import PropTypes from 'prop-types'
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'Add Task':
+    case 'Add Task': {
       const newTaskId = state.lastTaskId + 1
       const task = {
         id: newTaskId,
@@ -15,7 +16,8 @@ const reducer = (state, action) => {
       }
       const newTasks = [...state.tasks, task]
       return {...state, tasks: newTasks, lastTaskId: newTaskId}
-    case 'Toggle Task':
+    }
+    case 'Toggle Task': {
       const updatedTasks = state.tasks.map(task => {
         if (task.id === action.payload) {
           return {...task, isCompleted: !task.isCompleted}
@@ -24,6 +26,7 @@ const reducer = (state, action) => {
         }
       })
       return {...state, tasks: updatedTasks}
+    }
     default:
       return state
   }
@@ -47,6 +50,10 @@ const toggleTask = id => ({
 })
 
 class Task extends Component {
+  static propTypes = {
+    task: PropTypes.object.isRequired
+  }
+
   render() {
     const task = this.props.task
     const onChangeHandler = () => {
