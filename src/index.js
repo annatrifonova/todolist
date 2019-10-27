@@ -10,10 +10,20 @@ const reducer = (state, action) => {
       const newTaskId = state.lastTaskId + 1
       const task = {
         id: newTaskId,
-        description: action.payload
+        description: action.payload,
+        isCompleted: false
       }
       const newTasks = [...state.tasks, task]
       return {...state, tasks: newTasks, lastTaskId: newTaskId}
+    case 'Toggle Task':
+      const updatedTasks = state.tasks.map(task => {
+        if (task.id === action.payload) {
+          return {...task, isCompleted: !task.isCompleted}
+        } else {
+          return task
+        }
+      })
+      return {...state, tasks: updatedTasks}
     default:
       return state
   }
@@ -31,6 +41,26 @@ const addTask = description => ({
   payload: description
 })
 
+const toggleTask = id => ({
+  type: 'Toggle Task',
+  payload: id
+})
+
+class Task extends Component {
+  render() {
+    const task = this.props.task
+    const onChangeHandler = () => {
+      store.dispatch(toggleTask(task.id))
+    }
+    return (
+      <li>
+        <input type="checkbox" checked={task.isCompleted} onChange={onChangeHandler}></input>
+        {task.isCompleted ? <s>{task.description}</s> : <span>{task.description}</span>}
+      </li>
+    )
+  }  
+}
+
 class TaskList extends Component {
   constructor(props) {
     super(props)
@@ -39,7 +69,7 @@ class TaskList extends Component {
   }
 
   render() {
-    const tasks = store.getState().tasks.map(task => <li key={task.id}>{task.description}</li>)
+    const tasks = store.getState().tasks.map(task => <Task key={task.id} task={task} />)
     const onClickHandler = () => {
       const description = this.inputRef.current.value
       store.dispatch(addTask(description))
