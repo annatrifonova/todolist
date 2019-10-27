@@ -1,37 +1,67 @@
-import React, { Component } from 'react'
+import React, { Component, createRef } from 'react'
 import { render } from 'react-dom'
 import { Provider, connect } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
 import { createLogger } from 'redux-logger'
 
 const reducer = (state, action) => {
-  return state 
+  switch (action.type) {
+    case 'Add Task':
+      const newTaskId = state.lastTaskId + 1
+      const task = {
+        id: newTaskId,
+        description: action.payload
+      }
+      const newTasks = [...state.tasks, task]
+      return {...state, tasks: newTasks, lastTaskId: newTaskId}
+    default:
+      return state
+  }
 }
-const initialState = { tasks: ['Abc', '123', '!@#', 'asdf'] }
+const initialState = {
+  tasks: [],
+  lastTaskId: 0
+}
 const logger = createLogger()
 const middleware = applyMiddleware(logger)
 const store = createStore(reducer, initialState, middleware)
 
-class TaskListComponent extends Component {
+const addTask = description => ({
+  type: 'Add Task',
+  payload: description
+})
+
+class TaskList extends Component {
+  constructor(props) {
+    super(props)
+
+    this.inputRef = createRef()
+  }
+
   render() {
-    const tasks = this.props.tasks.map(task => <li key={task}>{task}</li>)
+    const tasks = store.getState().tasks.map(task => <li key={task.id}>{task.description}</li>)
+    const onClickHandler = () => {
+      const description = this.inputRef.current.value
+      store.dispatch(addTask(description))
+      this.inputRef.current.value = ''
+    }
     return (
-      <ul>
-        {tasks}
-      </ul>
+      <div>
+        <ul>{tasks}</ul>
+        <input type="text" ref={this.inputRef}></input>
+        <button onClick={onClickHandler}>Add</button>
+      </div>
     )
   }
 }
 
-const TaskList = connect(state => ({
-  tasks: state.tasks
-}))(TaskListComponent)
+const TaskListContainer = connect(state => state)(TaskList)
 
 class Root extends Component {
   render() {
     return (
       <Provider store={store}>
-        <TaskList></TaskList>
+        <TaskListContainer></TaskListContainer>
       </Provider>
     )
   }
